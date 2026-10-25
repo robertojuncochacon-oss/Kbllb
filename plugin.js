@@ -54,7 +54,7 @@ async function archiveSearch(q,type="movie"){
 }
 function archiveItem(d,kind="movie"){return {id:"archive-"+d.identifier,ref:"archive:"+d.identifier,title:String(Array.isArray(d.title)?d.title[0]:(d.title||d.identifier)),kind,year:d.year?String(Array.isArray(d.year)?d.year[0]:d.year):undefined,poster:ARCHIVE+"/services/img/"+encodeURIComponent(d.identifier),overview:String(Array.isArray(d.description)?d.description.join(" "):(d.description||"Vídeo en Internet Archive.")).replace(/<[^>]*>/g,"").slice(0,350)};}
 function sourceById(id){return SOURCES.find(s=>s.id===id);}
-function directMedia(html,pageUrl){
+function directMediaCandidates(html,pageUrl){
  const candidates=[];
  const patterns=[
   /<video\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/ig,
@@ -62,8 +62,17 @@ function directMedia(html,pageUrl){
   /<meta\b[^>]*(?:property|name)\s*=\s*["'](?:og:video|og:video:url|twitter:player:stream)["'][^>]*content\s*=\s*["']([^"']+)["']/ig,
   /<meta\b[^>]*content\s*=\s*["']([^"']+)["'][^>]*(?:property|name)\s*=\s*["'](?:og:video|og:video:url|twitter:player:stream)["']/ig
  ];
- for(const re of patterns){let m;while((m=re.exec(html))!==null){try{const u=new URL(m[1].replace(/&amp;/g,"&"),pageUrl);if(u.protocol==="https:"&&/\.(mp4|m4v|webm|m3u8)(?:$|[?#])/i.test(u.href))candidates.push(u.href);}catch(_){}}}
- return candidates.find(u=>/\.mp4(?:$|[?#])/i.test(u))||candidates.find(u=>/\.(m4v|webm)(?:$|[?#])/i.test(u))||candidates.find(u=>/\.m3u8(?:$|[?#])/i.test(u))||null;
+ for(const re of patterns){let m;while((m=re.exec(html))!==null){try{const u=new URL(m[1].replace(/&amp;/g,"&"),pageUrl);if(u.protocol==="https:"&&/\.(mp4|m4v|webm|m3u8)(?:$|[?#])/i.test(u.href)&&!candidates.includes(u.href))candidates.push(u.href);}catch(_){}}}
+ return candidates.sort((a,b)=>mediaScore(b)-mediaScore(a));
+}
+function mediaScore(url){
+ if(/\.m3u8(?:$|[?#])/i.test(url))return 10000;
+ const m=url.match(/(?:^|[^0-9])(2160|1440|1080|720|540|480|360|240)p?(?:[^0-9]|$)/i);
+ return m?Number(m[1]):/\.mp4(?:$|[?#])/i.test(url)?500:100;
+}
+function mediaLabel(url){
+ const m=url.match(/(?:^|[^0-9])(2160|1440|1080|720|540|480|360|240)p?(?:[^0-9]|$)/i);
+ return /\.m3u8(?:$|[?#])/i.test(url)?"HLS · calidad automática":m?m[1]+"p":"Video";
 }
 export async function categories(){return CATEGORIES.map(c=>({id:"kbllb-"+c.id,title:c.title,ref:c.id}));}
 export async function home(){
@@ -123,8 +132,8 @@ export async function resolve(ref){
  try{response=await kino.fetch(s.url);}catch(e){throw kino.error("not_found","No se pudo abrir la página de la fuente. Puede bloquear solicitudes desde Kino o requerir navegador: "+s.title);}
  if(!response.ok)throw kino.error("not_found","La fuente respondió HTTP "+response.status+".");
  let html="";try{html=await response.text();}catch(_){}
- let media=directMedia(html,s.url);
- if(media)return {url:media,mime:/\\.m3u8(?:$|[?#])/i.test(media)?"application/vnd.apple.mpegurl":/\\.webm/i.test(media)?"video/webm":"video/mp4"};
+ const media=directMediaCandidates(html,s.url);
+ if(media.length){const first=media[0];return {url:first,mime:/\.m3u8(?:$|[?#])/i.test(first)?"application/vnd.apple.mpegurl":/\.webm/i.test(first)?"video/webm":"video/mp4",label:mediaLabel(first),alternatives:media.slice(1,8).map(url=>({url,mime:/\.m3u8(?:$|[?#])/i.test(url)?"application/vnd.apple.mpegurl":/\.webm/i.test(url)?"video/webm":"video/mp4",label:mediaLabel(url)}))};
  // Optional Kino hidden-browser fallback. It can capture a page that itself starts playback,
  // but cannot turn a provider homepage into a title/episode catalogue.
  if(kino.browser&&typeof kino.browser.capture==="function"){
