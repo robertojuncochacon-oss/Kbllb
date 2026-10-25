@@ -1,7 +1,7 @@
 {
   "id": "kbllb-media-index",
   "name": "KBLLB Media Index",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "apiVersion": 6,
   "entry": "plugin.js",
   "description": "Catálogo de fuentes externas y vídeos compatibles de Internet Archive; incluye resolución de enlaces directos cuando la fuente los expone.",
@@ -64,5 +64,5 @@
     "utilities"
   ],
   "streamHosts": "any",
-  "browser": "pages"
+  "browser": true
 }
