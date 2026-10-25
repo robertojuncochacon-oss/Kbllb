@@ -2,7 +2,7 @@
   "id": "kbllb-media-index",
   "name": "KBLLB Media Index",
   "version": "1.0.0",
-  "apiVersion": 2,
+  "apiVersion": 6,
   "entry": "plugin.js",
   "description": "Localizador multimedia por categorías y catálogo reproducible de vídeos de Internet Archive.",
   "author": "robertojuncochacon-oss",
