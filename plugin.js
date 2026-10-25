@@ -92,6 +92,15 @@ function categoryItems(id) {
   return SOURCES.filter(s => s.category === c.match).map(sourceItem);
 }
 
+// Kino 0.9.54+: expose each source group as a tile in Kino's Categorías screen.
+export async function categories() {
+  return CATEGORIES.map(c => ({
+    id: "kbllb-" + c.id,
+    title: c.title,
+    ref: c.id
+  }));
+}
+
 export async function home() {
   const rows = CATEGORIES.map(c => ({
     id: c.id, ref: c.id, title: c.title, items: categoryItems(c.id)
