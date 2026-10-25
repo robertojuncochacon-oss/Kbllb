@@ -47,11 +47,12 @@ const CATEGORIES=[
 function item(s){return {id:"source-"+s.id,ref:"source:"+s.id,title:s.title,kind:"movie",overview:s.category+" · Fuente externa: "+s.url};}
 function log(...a){try{kino.log(...a);}catch(_){}}
 async function getJson(url){const r=await kino.fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}
-async function archiveSearch(q){
- const url=ARCHIVE+"/advancedsearch.php?q="+encodeURIComponent("title:("+q+") AND mediatype:(movies)")+"&fl[]=identifier&fl[]=title&fl[]=year&fl[]=description&rows=20&page=1&output=json";
+async function archiveSearch(q,type="movie"){
+ const base=type==="series" ? 'collection:(classic_tv) AND mediatype:(movies)' : 'mediatype:(movies)';
+ const url=ARCHIVE+"/advancedsearch.php?q="+encodeURIComponent("title:("+q+") AND "+base)+"&fl[]=identifier&fl[]=title&fl[]=year&fl[]=description&rows=20&page=1&output=json";
  const d=await getJson(url);return d&&d.response&&Array.isArray(d.response.docs)?d.response.docs:[];
 }
-function archiveItem(d){return {id:"archive-"+d.identifier,ref:"archive:"+d.identifier,title:String(Array.isArray(d.title)?d.title[0]:(d.title||d.identifier)),kind:"movie",year:d.year?String(Array.isArray(d.year)?d.year[0]:d.year):undefined,poster:ARCHIVE+"/services/img/"+encodeURIComponent(d.identifier),overview:String(Array.isArray(d.description)?d.description.join(" "):(d.description||"Vídeo en Internet Archive.")).replace(/<[^>]*>/g,"").slice(0,350)};}
+function archiveItem(d,kind="movie"){return {id:"archive-"+d.identifier,ref:"archive:"+d.identifier,title:String(Array.isArray(d.title)?d.title[0]:(d.title||d.identifier)),kind,year:d.year?String(Array.isArray(d.year)?d.year[0]:d.year):undefined,poster:ARCHIVE+"/services/img/"+encodeURIComponent(d.identifier),overview:String(Array.isArray(d.description)?d.description.join(" "):(d.description||"Vídeo en Internet Archive.")).replace(/<[^>]*>/g,"").slice(0,350)};}
 function sourceById(id){return SOURCES.find(s=>s.id===id);}
 function directMedia(html,pageUrl){
  const candidates=[];
@@ -80,7 +81,7 @@ export async function search(query){
  const q=String((query&&(query.q||query.query||query.title))||"").trim();
  if(!q)return SOURCES.map(item);
  const matches=SOURCES.filter(s=>(s.title+" "+s.category+" "+s.url).toLowerCase().includes(q.toLowerCase())).map(item);
- try{const docs=await archiveSearch(q);return matches.concat(docs.map(archiveItem));}catch(e){log("Search archive",e.message);return matches;}
+ try{const type=query&&query.type==="series"?"series":"movie";const docs=await archiveSearch(q,type);return matches.concat(docs.map(d=>archiveItem(d,type)));}catch(e){log("Search archive",e.message);return matches;}
 }
 async function archiveResolve(id){
  const meta=await getJson(ARCHIVE+"/metadata/"+encodeURIComponent(id));
@@ -91,7 +92,10 @@ async function archiveResolve(id){
 }
 export async function resolve(ref){
  const value=String(ref||"");
- if(value.startsWith("archive:"))return archiveResolve(value.slice(8));
+ if(value.startsWith("archive:")){
+  const raw=value.slice(8);const cut=raw.indexOf("|");
+  return archiveResolve(cut<0?raw:raw.slice(0,cut),cut<0?null:raw.slice(cut+1));
+ }
  if(!value.startsWith("source:"))throw kino.error("not_found","Referencia desconocida.");
  const s=sourceById(value.slice(7));if(!s)throw kino.error("not_found","Fuente desconocida.");
  let response;
