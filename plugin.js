@@ -65,14 +65,18 @@ function directMediaCandidates(html,pageUrl){
  for(const re of patterns){let m;while((m=re.exec(html))!==null){try{const u=new URL(m[1].replace(/&amp;/g,"&"),pageUrl);if(u.protocol==="https:"&&/\.(mp4|m4v|webm|m3u8)(?:$|[?#])/i.test(u.href)&&!candidates.includes(u.href))candidates.push(u.href);}catch(_){}}}
  return candidates.sort((a,b)=>mediaScore(b)-mediaScore(a));
 }
-function mediaScore(url){
- if(/\.m3u8(?:$|[?#])/i.test(url))return 10000;
+function mediaScore(url,quality="auto"){
+ const hls=/\.m3u8(?:$|[?#])/i.test(url);
  const m=url.match(/(?:^|[^0-9])(2160|1440|1080|720|540|480|360|240)p?(?:[^0-9]|$)/i);
- return m?Number(m[1]):/\.mp4(?:$|[?#])/i.test(url)?500:100;
+ const resolution=m?Number(m[1]):0;
+ // Auto/mobile: prefer adaptive HLS. Max: prefer a clearly-labelled high resolution.
+ if(quality==="max")return resolution*10+(hls?5:0);
+ if(quality==="low")return (hls?10000:0)+(resolution?Math.max(0,1000-resolution):500);
+ return (hls?10000:0)+resolution;
 }
 function mediaLabel(url){
  const m=url.match(/(?:^|[^0-9])(2160|1440|1080|720|540|480|360|240)p?(?:[^0-9]|$)/i);
- return /\.m3u8(?:$|[?#])/i.test(url)?"HLS · calidad automática":m?m[1]+"p":"Video";
+ return /\.m3u8(?:$|[?#])/i.test(url)?"HLS · adaptativo":m?m[1]+"p":/\.mp4(?:$|[?#])/i.test(url)?"MP4 · resolución no indicada":"Video";
 }
 export async function categories(){return CATEGORIES.map(c=>({id:"kbllb-"+c.id,title:c.title,ref:c.id}));}
 export async function home(){
@@ -140,7 +144,10 @@ export async function resolve(ref){
   try{
    const captured=await kino.browser.capture(s.url,{timeoutMs:18000});
    const streams=Array.isArray(captured.media)?captured.media:[];
-   if(streams.length){const first=streams[0];return {url:first.url,mime:first.mime,headers:first.headers,alternatives:streams.slice(1,8).map(x=>({url:x.url,mime:x.mime,headers:x.headers}))};}
+   if(streams.length){
+    const ranked=streams.filter(x=>x&&typeof x.url==="string"&&/^https:\/\//i.test(x.url)).sort((a,b)=>mediaScore(b.url)-mediaScore(a.url));
+    if(ranked.length){const first=ranked[0];return {url:first.url,mime:first.mime,headers:first.headers,label:mediaLabel(first.url),alternatives:ranked.slice(1,8).map(x=>({url:x.url,mime:x.mime,headers:x.headers,label:mediaLabel(x.url)}))};}
+   }
   }catch(e){log("Browser capture failed",s.title,e&&e.code||e&&e.message||"unknown");}
  }
  throw kino.error("not_found","No se encontró un vídeo directo en esta página. La tarjeta es una fuente externa, no una película individual. Para listar títulos y capítulos reales hace falta un adaptador específico para ese sitio.");
