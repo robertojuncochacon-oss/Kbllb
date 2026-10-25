@@ -1,0 +1,21 @@
+{
+  "id": "kbllb-media-index",
+  "name": "KBLLB Media Index",
+  "version": "1.0.0",
+  "apiVersion": 2,
+  "entry": "plugin.js",
+  "description": "Localizador multimedia por categorías y catálogo reproducible de vídeos de Internet Archive.",
+  "author": "robertojuncochacon-oss",
+  "homepage": "https://github.com/robertojuncochacon-oss/kBllB",
+  "hosts": [
+    "archive.org",
+    "*.archive.org"
+  ],
+  "capabilities": [
+    "search",
+    "home",
+    "browse",
+    "resolve"
+  ],
+  "color": "#D62828"
+}
