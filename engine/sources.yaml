@@ -1,0 +1,20 @@
+# Plantilla: reemplaza por bibliotecas propias, de dominio público o licenciadas.
+# authorized es una declaración del operador; no sustituye verificar los derechos por ítem.
+sources:
+  - id: archive-metadata-example
+    name: Internet Archive metadata (solo metadatos públicos)
+    type: json
+    url: https://archive.org/advancedsearch.php?q=mediatype%3A%28movies%29&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=year&fl%5B%5D=description&rows=50&page=1&output=json
+    authorized: true
+    licenseNote: "Validar los derechos de cada ítem antes de habilitar reproducción"
+    pagination: none
+    allowedHosts: [archive.org]
+# Ejemplo M3U propio:
+#  - id: my-library
+#    name: Mi biblioteca
+#    type: m3u
+#    url: https://media.example.org/library.m3u
+#    authorized: true
+#    licenseNote: "Contenido propio"
+#    pagination: none
+#    allowedHosts: [media.example.org]
