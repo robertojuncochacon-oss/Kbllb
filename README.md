@@ -1,6 +1,6 @@
 # KBLLB — Link Selector Engine para Kino TV
 
-Versión 1.0.6. Organiza fuentes, busca vídeos compatibles de Internet Archive y ordena URLs de vídeo que una fuente exponga directamente o que el navegador oculto de Kino capture durante una reproducción real.
+Versión 1.0.7. Organiza fuentes, busca vídeos compatibles de Internet Archive y ordena URLs de vídeo que una fuente exponga directamente o que el navegador oculto de Kino capture durante una reproducción real.
 
 ## Selección de enlaces
 
@@ -21,7 +21,7 @@ Se conservan los enlaces externos configurados anteriormente. Las tarjetas de fu
 
 ## Actualizar
 
-1. En Kino TV, abre Ajustes → Plugins y actualiza KBLLB a 1.0.6.
+1. En Kino TV, abre Ajustes → Plugins y actualiza KBLLB a 1.0.7.
 2. Si no aparece, elimina y vuelve a instalar `robertojuncochacon-oss/kBllB`.
 3. Revisa los permisos de navegador oculto y hosts externos que solicite Kino.
 
