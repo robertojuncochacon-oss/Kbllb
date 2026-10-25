@@ -1,0 +1,2 @@
+import {describe,expect,it} from "vitest";import {normalizeTitle,extractQuality,extractLanguage,detectFormat} from "./normalize.js";
+describe("normalizer",()=>{it("removes accents and quality noise",()=>expect(normalizeTitle("Amélie 1080p LATINO [Dual]")).toBe("amelie"));it("extracts 4K",()=>expect(extractQuality("Film 4K UHD")).toBe(2160));it("extracts Spanish",()=>expect(extractLanguage("Film Latino")).toBe("es"));it("detects HLS",()=>expect(detectFormat("https://media.example/a.m3u8")).toBe("hls"));});
