@@ -1,0 +1,1 @@
+import {describe,expect,it} from "vitest";import {similarity} from "./deduplicate.js";describe("similarity",()=>{it("returns 1 for exact match",()=>expect(similarity("amelie","amelie")).toBe(1));it("separates distinct titles",()=>expect(similarity("amelie","alien covenant")).toBeLessThan(.5));});
