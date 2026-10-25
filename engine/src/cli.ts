@@ -84,8 +84,8 @@ async function runIndex(config: Config, sourceFile: SourcesFile, configPath: str
 }
 
 async function main(): Promise<void> {
-  const configPath = resolve(process.argv[2] ?? "engine/config.yaml");
-  const sourcePath = resolve(process.argv[3] ?? "engine/sources.yaml");
+  const configPath = resolve(process.argv[2] ?? "config.yaml");
+  const sourcePath = resolve(process.argv[3] ?? "sources.yaml");
   const config = parse(await readFile(configPath, "utf8")) as Config;
   const sourceFile = parse(await readFile(sourcePath, "utf8")) as SourcesFile;
   const run = (): Promise<void> => runIndex(config, sourceFile, configPath);
