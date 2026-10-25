@@ -4,12 +4,10 @@
   "version": "1.2.0",
   "apiVersion": 6,
   "entry": "plugin.js",
-  "description": "Catálogo único KBLLB Plus con enlaces curados a películas, series, anime, deportes, documentales y herramientas. Las fuentes externas son enlaces de descubrimiento; la reproducción directa depende de cada proveedor.",
+  "description": "Catálogo KBLLB Plus de enlaces externos para películas y series, anime, deportes y TV. Las fuentes son enlaces de descubrimiento; la reproducción directa depende de cada proveedor.",
   "author": "robertojuncochacon-oss",
   "homepage": "https://github.com/robertojuncochacon-oss/kBllB",
   "hosts": [
-    "archive.org",
-    "*.archive.org",
     "share.google",
     "zoechip.bz",
     "cinebros.net",
@@ -34,15 +32,6 @@
     "mlblive.net",
     "timesoccertv.com",
     "www.timesoccertv.com",
-    "documentarymania.com",
-    "www.documentarymania.com",
-    "documentarytube.com",
-    "www.documentarytube.com",
-    "fmhy.net",
-    "www.gnu.org",
-    "orionoid.com",
-    "sanet.st",
-    "github.com",
     "www.wcostream.org",
     "kisscartoon.nz",
     "kimcartoon.li"
@@ -59,8 +48,7 @@
     "movies",
     "series",
     "anime",
-    "live",
-    "utilities"
+    "live"
   ],
   "streamHosts": "any",
   "browser": true
