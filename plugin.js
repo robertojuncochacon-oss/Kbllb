@@ -11,7 +11,8 @@ const SOURCES = [
  {id:"footballia",title:"Footballia · fútbol histórico",category:"Fútbol histórico",url:"https://footballia.net/"},
  {id:"timesoccertv",title:"TimeSoccerTV · programación",category:"Programación deportiva",url:"https://timesoccertv.com/"},
  {id:"anichi",title:"Anichi · catálogo anime",category:"Anime · descubrimiento",url:"https://anichi.to/home"},
- {id:"animesalt",title:"AnimeSalt · catálogo anime",category:"Anime · descubrimiento",url:"https://animesalt.to/"}
+ {id:"animesalt",title:"AnimeSalt · catálogo anime",category:"Anime · descubrimiento",url:"https://animesalt.to/"},
+ {id:"redflix",title:"RedFlix · enlace alternativo",category:"Películas y documentales",url:"https://redflix.one/"}
 ];
 const CATEGORIES=[
  {id:"archive",title:"Películas y documentales",match:"Películas y documentales"},
@@ -28,7 +29,7 @@ async function archiveSearch(q,type="movie"){
  const url=ARCHIVE+"/advancedsearch.php?q="+encodeURIComponent("title:("+q+") AND "+base)+"&fl[]=identifier&fl[]=title&fl[]=year&fl[]=description&rows=20&page=1&output=json";
  const d=await getJson(url);return d&&d.response&&Array.isArray(d.response.docs)?d.response.docs:[];
 }
-function archiveItem(d,kind="movie"){return {id:"archive-"+d.identifier,ref:"archive:"+d.identifier,title:String(Array.isArray(d.title)?d.title[0]:(d.title||d.identifier)),kind,year:d.year?String(Array.isArray(d.year)?d.year[0]:d.year):undefined,poster:ARCHIVE+"/services/img/"+encodeURIComponent(d.identifier),overview:String(Array.isArray(d.description)?d.description.join(" "):(d.description||"Vídeo en Internet Archive.")).replace(/<[^>]*>/g,"").slice(0,350)};}
+function archiveItem(d,kind="movie"){return {id:"archive-"+d.identifier,ref:"archive:"+d.identifier,title:String(Array.isArray(d.title)?d.title[0]:(d.title||d.identifier)),kind,year:d.year?String(Array.isArray(d.year)?d.year[0]:d.year):undefined,poster:ARCHIVE+"/services/img/"+encodeURIComponent(d.identifier),overview:String(Array.isArray(d.description)?d.description.join(" "):(d.description||"Vídeo en Internet Archive.")).replace(/<[^>]*>/g,"").slice(0,300)+" · Enlace alternativo para buscar el título en RedFlix: https://redflix.one/"};}
 function sourceById(id){return SOURCES.find(s=>s.id===id);}
 function directMediaCandidates(html,pageUrl){
  const candidates=[];
