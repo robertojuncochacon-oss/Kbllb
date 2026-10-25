@@ -3,23 +3,47 @@
 // publicly exposed media URLs. It does not bypass DRM, logins, paywalls, or protected player APIs.
 const ARCHIVE = "https://archive.org";
 const SOURCES = [
- // Playback-oriented public archive. Item-level rights still need checking.
- {id:"archive-org",title:"Internet Archive",category:"Películas y documentales",url:"https://archive.org/"},
- // Discovery/catalogue sources; homepage links are not guaranteed direct playable streams.
- {id:"documentarytube",title:"DocumentaryTube",category:"Documentales",url:"https://www.documentarytube.com/"},
- {id:"documentarymania",title:"DocumentaryMania",category:"Documentales",url:"https://www.documentarymania.com/"},
- {id:"footballia",title:"Footballia · fútbol histórico",category:"Fútbol histórico",url:"https://footballia.net/"},
- {id:"timesoccertv",title:"TimeSoccerTV · programación",category:"Programación deportiva",url:"https://timesoccertv.com/"},
- {id:"anichi",title:"Anichi · catálogo anime",category:"Anime · descubrimiento",url:"https://anichi.to/home"},
- {id:"animesalt",title:"AnimeSalt · catálogo anime",category:"Anime · descubrimiento",url:"https://animesalt.to/"},
- {id:"redflix",title:"RedFlix · enlace alternativo",category:"Películas y documentales",url:"https://redflix.one/"}
+ // Catálogo central de enlaces externos. Las tarjetas son enlaces de descubrimiento, no streams garantizados.
+ {id:"archive-org",title:"Internet Archive",category:"Documentales y archivo",url:"https://archive.org/"},
+ {id:"fly-stream",title:"Fly Stream",category:"Películas y series",url:"https://share.google/gmMvOn5uR4aExEUBK"},
+ {id:"bingebang-zoechip",title:"BingeBang / ZoeChip",category:"Películas y series",url:"https://zoechip.bz/home"},
+ {id:"cinebros",title:"CineBros",category:"Películas y series",url:"https://cinebros.net/"},
+ {id:"zenox",title:"Zenox",category:"Películas y series",url:"https://zenox.lol/"},
+ {id:"redflix",title:"RedFlix",category:"Películas y series",url:"https://redflix.one/"},
+ {id:"nexa",title:"Nexa",category:"Películas y series",url:"https://nexa.mov/"},
+ {id:"flixer",title:"Flixer",category:"Películas y series",url:"https://flixer.gd/"},
+ {id:"boredflix",title:"Boredflix · portal principal",category:"Películas y series",url:"https://boredflix.to/"},
+ {id:"leonflix",title:"Leonflix",category:"Películas y series",url:"https://leonflix.net/"},
+ {id:"anichi",title:"Anichi",category:"Anime y animación",url:"https://anichi.to/home"},
+ {id:"animesalt",title:"AnimeSalt",category:"Anime y animación",url:"https://animesalt.to/"},
+ {id:"anihq",title:"AniHQ",category:"Anime y animación",url:"https://anihq.org/home"},
+ {id:"wcostream",title:"WCOStream",category:"Anime y animación",url:"https://www.wcostream.org/"},
+ {id:"kisscartoon",title:"KissCartoon",category:"Anime y animación",url:"https://kisscartoon.nz/"},
+ {id:"kimcartoon",title:"KimCartoon",category:"Anime y animación",url:"https://kimcartoon.li/"},
+ {id:"mirrors-st",title:"Mirrors.st",category:"Deportes y TV en directo",url:"https://mirrors.st/"},
+ {id:"gostreameast",title:"GoStreamEast",category:"Deportes y TV en directo",url:"https://gostreameast.link/"},
+ {id:"strmd",title:"STRMD",category:"Deportes y TV en directo",url:"https://strmd.link/"},
+ {id:"thetvapp",title:"TheTVApp",category:"Deportes y TV en directo",url:"https://thetvapp.st/"},
+ {id:"aurasports",title:"AuraSports",category:"Deportes y TV en directo",url:"https://aurasports.xyz/"},
+ {id:"damitv",title:"DamiTV",category:"Deportes y TV en directo",url:"https://damitv.st/"},
+ {id:"footballia",title:"Footballia · fútbol histórico",category:"Deportes y TV en directo",url:"https://footballia.net/"},
+ {id:"mlblive",title:"MLB Live",category:"Deportes y TV en directo",url:"https://mlblive.net/"},
+ {id:"timesoccertv",title:"TimeSoccerTV · programación",category:"Deportes y TV en directo",url:"https://timesoccertv.com/"},
+ {id:"documentarymania",title:"DocumentaryMania",category:"Documentales y archivo",url:"https://www.documentarymania.com/"},
+ {id:"documentarytube",title:"DocumentaryTube",category:"Documentales y archivo",url:"https://www.documentarytube.com/"},
+ {id:"fmhy-video-tools",title:"FMHY · herramientas de vídeo",category:"Herramientas y descargas",url:"https://fmhy.net/video-tools/#video-download"},
+ {id:"fmhy-downloading",title:"FMHY · descargas",category:"Herramientas y descargas",url:"https://fmhy.net/downloading"},
+ {id:"gnu-wget",title:"GNU Wget",category:"Herramientas y descargas",url:"https://www.gnu.org/software/wget/"},
+ {id:"orionoid",title:"Orionoid",category:"Herramientas y descargas",url:"https://orionoid.com/"},
+ {id:"sanet",title:"SANET",category:"Herramientas y descargas",url:"https://sanet.st/full/"},
+ {id:"hatt-github",title:"Hatt · GitHub",category:"Herramientas y descargas",url:"https://github.com/FrenchGithubUser/Hatt"}
 ];
 const CATEGORIES=[
- {id:"archive",title:"Películas y documentales",match:"Películas y documentales"},
- {id:"docs",title:"Documentales",match:"Documentales"},
- {id:"football",title:"Fútbol histórico",match:"Fútbol histórico"},
- {id:"sports-guide",title:"Programación deportiva",match:"Programación deportiva"},
- {id:"anime",title:"Anime · descubrimiento",match:"Anime · descubrimiento"}
+ {id:"movies",title:"Películas y series",match:"Películas y series"},
+ {id:"anime",title:"Anime y animación",match:"Anime y animación"},
+ {id:"sports-tv",title:"Deportes y TV en directo",match:"Deportes y TV en directo"},
+ {id:"docs",title:"Documentales y archivo",match:"Documentales y archivo"},
+ {id:"tools",title:"Herramientas y descargas",match:"Herramientas y descargas"}
 ];
 function item(s){return {id:"source-"+s.id,ref:"source:"+s.id,title:s.title,kind:"movie",overview:s.category+" · Fuente externa: "+s.url};}
 function log(...a){try{kino.log(...a);}catch(_){}}
@@ -29,7 +53,7 @@ async function archiveSearch(q,type="movie"){
  const url=ARCHIVE+"/advancedsearch.php?q="+encodeURIComponent("title:("+q+") AND "+base)+"&fl[]=identifier&fl[]=title&fl[]=year&fl[]=description&rows=20&page=1&output=json";
  const d=await getJson(url);return d&&d.response&&Array.isArray(d.response.docs)?d.response.docs:[];
 }
-function archiveItem(d,kind="movie"){return {id:"archive-"+d.identifier,ref:"archive:"+d.identifier,title:String(Array.isArray(d.title)?d.title[0]:(d.title||d.identifier)),kind,year:d.year?String(Array.isArray(d.year)?d.year[0]:d.year):undefined,poster:ARCHIVE+"/services/img/"+encodeURIComponent(d.identifier),overview:String(Array.isArray(d.description)?d.description.join(" "):(d.description||"Vídeo en Internet Archive.")).replace(/<[^>]*>/g,"").slice(0,300)+" · Enlace alternativo para buscar el título en RedFlix: https://redflix.one/"};}
+function archiveItem(d,kind="movie"){return {id:"archive-"+d.identifier,ref:"archive:"+d.identifier,title:String(Array.isArray(d.title)?d.title[0]:(d.title||d.identifier)),kind,year:d.year?String(Array.isArray(d.year)?d.year[0]:d.year):undefined,poster:ARCHIVE+"/services/img/"+encodeURIComponent(d.identifier),overview:String(Array.isArray(d.description)?d.description.join(" "):(d.description||"Vídeo en Internet Archive.")).replace(/<[^>]*>/g,"").slice(0,300)+" · Explora fuentes externas desde las categorías del catálogo KBLLB Plus."};}
 function sourceById(id){return SOURCES.find(s=>s.id===id);}
 function directMediaCandidates(html,pageUrl){
  const candidates=[];
