@@ -62,8 +62,30 @@ function directMediaCandidates(html,pageUrl){
   /<meta\b[^>]*(?:property|name)\s*=\s*["'](?:og:video|og:video:url|twitter:player:stream)["'][^>]*content\s*=\s*["']([^"']+)["']/ig,
   /<meta\b[^>]*content\s*=\s*["']([^"']+)["'][^>]*(?:property|name)\s*=\s*["'](?:og:video|og:video:url|twitter:player:stream)["']/ig
  ];
- for(const re of patterns){let m;while((m=re.exec(html))!==null){try{const u=new URL(m[1].replace(/&amp;/g,"&"),pageUrl);if(u.protocol==="https:"&&/\.(mp4|m4v|webm|m3u8)(?:$|[?#])/i.test(u.href)&&!candidates.includes(u.href))candidates.push(u.href);}catch(_){}}}
+ for(const re of patterns){let m;while((m=re.exec(html))!==null){try{const u=new URL(m[1].replace(/&amp;/g,"&"),pageUrl);if(u.protocol==="https:"&&/\.(mp4|m4v|webm|m3u8|mpd|mkv)(?:$|[?#])/i.test(u.href)&&!candidates.includes(u.href))candidates.push(u.href);}catch(_){}}}
  return candidates.sort((a,b)=>mediaScore(b)-mediaScore(a));
+}
+function directSubtitles(html,pageUrl){
+ const out=[];
+ const re=/<track\b([^>]*)>/ig;
+ let m;
+ while((m=re.exec(html))!==null){
+  const attrs=m[1];
+  const src=/\bsrc\s*=\s*["']([^"']+)["']/i.exec(attrs);
+  const kind=/\bkind\s*=\s*["']([^"']+)["']/i.exec(attrs);
+  const lang=/\b(?:srclang|lang)\s*=\s*["']([^"']+)["']/i.exec(attrs);
+  if(!src||(kind&&!/subtitles|captions/i.test(kind[1])))continue;
+  try{
+   const u=new URL(src[1].replace(/&amp;/g,"&"),pageUrl);
+   if(u.protocol!=="https:"||!/\.(srt|vtt)(?:$|[?#])/i.test(u.href)||out.some(x=>x.url===u.href))continue;
+   const ext=/\.(srt|vtt)(?:$|[?#])/i.exec(u.href);
+   out.push({lang:lang?lang[1].slice(0,20):"und",url:u.href,format:ext[1].toLowerCase()});
+  }catch(_){}
+ }
+ return out.slice(0,30);
+}
+function streamMime(url){
+ return /\.mp4(?:$|[?#])/i.test(url)?"video/mp4":undefined;
 }
 function mediaScore(url,quality="auto"){
  const hls=/\.m3u8(?:$|[?#])/i.test(url);
@@ -137,7 +159,7 @@ export async function resolve(ref){
  if(!response.ok)throw kino.error("not_found","La fuente respondió HTTP "+response.status+".");
  let html="";try{html=await response.text();}catch(_){}
  const media=directMediaCandidates(html,s.url);
- if(media.length){const first=media[0];return {url:first,mime:/\.m3u8(?:$|[?#])/i.test(first)?"application/vnd.apple.mpegurl":/\.webm/i.test(first)?"video/webm":"video/mp4",label:mediaLabel(first),alternatives:media.slice(1,8).map(url=>({url,mime:/\.m3u8(?:$|[?#])/i.test(url)?"application/vnd.apple.mpegurl":/\.webm/i.test(url)?"video/webm":"video/mp4",label:mediaLabel(url)}))};}
+ if(media.length){const first=media[0];const subtitles=directSubtitles(html,s.url);return {url:first,...(streamMime(first)?{mime:streamMime(first)}:{}),label:mediaLabel(first),...(subtitles.length?{subtitles}:{}),alternatives:media.slice(1,8).map(url=>({url,...(streamMime(url)?{mime:streamMime(url)}:{}),label:mediaLabel(url)}))};}
  // Optional Kino hidden-browser fallback. It can capture a page that itself starts playback,
  // but cannot turn a provider homepage into a title/episode catalogue.
  if(kino.browser&&typeof kino.browser.capture==="function"){
@@ -146,7 +168,7 @@ export async function resolve(ref){
    const streams=Array.isArray(captured.media)?captured.media:[];
    if(streams.length){
     const ranked=streams.filter(x=>x&&typeof x.url==="string"&&/^https:\/\//i.test(x.url)).sort((a,b)=>mediaScore(b.url)-mediaScore(a.url));
-    if(ranked.length){const first=ranked[0];return {url:first.url,mime:first.mime,headers:first.headers,label:mediaLabel(first.url),alternatives:ranked.slice(1,8).map(x=>({url:x.url,mime:x.mime,headers:x.headers,label:mediaLabel(x.url)}))};}
+    if(ranked.length){const first=ranked[0];const subtitles=directSubtitles(html,s.url);return {url:first.url,...(streamMime(first.url)?{mime:"video/mp4"}:{}),...(first.headers?{headers:first.headers}:{}),label:mediaLabel(first.url),...(subtitles.length?{subtitles}:{}),alternatives:ranked.slice(1,8).map(x=>({url:x.url,...(streamMime(x.url)?{mime:"video/mp4"}:{}),...(x.headers?{headers:x.headers}:{}),label:mediaLabel(x.url)}))};}
    }
   }catch(e){log("Browser capture failed",s.title,e&&e.code||e&&e.message||"unknown");}
  }
