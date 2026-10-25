@@ -4,6 +4,8 @@ import { parse } from "yaml";
 import { validateSource } from "./ingestion/policy.js";
 import { allowedByRobots } from "./ingestion/robots.js";
 import { parseM3U } from "./ingestion/parse-m3u.js";
+import { parseHtmlLibrary } from "./ingestion/parse-html.js";
+import { parseJsonLibrary } from "./ingestion/parse-json.js";
 import { readJson, writeJsonAtomic } from "./cache/json-store.js";
 import { startScheduler } from "./scheduler/cron.js";
 import type { SourceConfig, MediaEntry } from "./core/types.js";
@@ -58,13 +60,9 @@ async function runIndex(config: Config, sourceFile: SourcesFile, configPath: str
       let entries: MediaEntry[] = [];
       if (source.type === "m3u") entries = parseM3U(text, source);
       else if (source.type === "json") {
-        const parsed: unknown = JSON.parse(text);
-        const root = typeof parsed === "object" && parsed !== null ? parsed as Record<string, unknown> : {};
-        const responseNode = typeof root.response === "object" && root.response !== null ? root.response as Record<string, unknown> : {};
-        const docs = Array.isArray(responseNode.docs) ? responseNode.docs : [];
-        log("info", "json_metadata_seen_not_streams", { sourceId: source.id, items: docs.length });
+        entries = parseJsonLibrary(JSON.parse(text) as unknown, source);
       } else {
-        log("warn", "html_adapter_required", { sourceId: source.id, reason: "No source-specific HTML schema configured" });
+        entries = parseHtmlLibrary(text, source);
       }
       for (const entry of entries) current.set(entry.id, entry);
       log("info", "source_scanned", { sourceId: source.id, entries: entries.length });
