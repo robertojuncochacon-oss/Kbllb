@@ -1,7 +1,7 @@
 {
   "id": "kbllb-media-index",
   "name": "KBLLB Media Index",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "apiVersion": 6,
   "entry": "plugin.js",
   "description": "Resolución de streams nativos HLS/DASH/MP4/MKV cuando están expuestos; alternativas y subtítulos SRT/VTT detectables.",
