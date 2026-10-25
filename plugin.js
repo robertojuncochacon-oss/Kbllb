@@ -89,16 +89,18 @@ function streamMime(url){
 }
 function mediaScore(url,quality="auto"){
  const hls=/\.m3u8(?:$|[?#])/i.test(url);
+ const dash=/\.mpd(?:$|[?#])/i.test(url);
+ const adaptive=hls||dash;
  const m=url.match(/(?:^|[^0-9])(2160|1440|1080|720|540|480|360|240)p?(?:[^0-9]|$)/i);
  const resolution=m?Number(m[1]):0;
- // Auto/mobile: prefer adaptive HLS. Max: prefer a clearly-labelled high resolution.
- if(quality==="max")return resolution*10+(hls?5:0);
- if(quality==="low")return (hls?10000:0)+(resolution?Math.max(0,1000-resolution):500);
- return (hls?10000:0)+resolution;
+ // Prefer adaptive manifests; infer resolution only when the URL exposes it.
+ if(quality==="max")return resolution*10+(adaptive?5:0);
+ if(quality==="low")return (adaptive?10000:0)+(resolution?Math.max(0,1000-resolution):500);
+ return (adaptive?10000:0)+resolution;
 }
 function mediaLabel(url){
  const m=url.match(/(?:^|[^0-9])(2160|1440|1080|720|540|480|360|240)p?(?:[^0-9]|$)/i);
- return /\.m3u8(?:$|[?#])/i.test(url)?"HLS · adaptativo":m?m[1]+"p":/\.mp4(?:$|[?#])/i.test(url)?"MP4 · resolución no indicada":"Video";
+ return /\.m3u8(?:$|[?#])/i.test(url)?"HLS · adaptativo":/\.mpd(?:$|[?#])/i.test(url)?"DASH · adaptativo":m?m[1]+"p":/\.mp4(?:$|[?#])/i.test(url)?"MP4 · resolución no indicada":/\.mkv(?:$|[?#])/i.test(url)?"MKV · resolución no indicada":"Video";
 }
 export async function categories(){return CATEGORIES.map(c=>({id:"kbllb-"+c.id,title:c.title,ref:c.id}));}
 export async function home(){
