@@ -123,7 +123,16 @@ export async function resolve(ref){
  try{response=await kino.fetch(s.url);}catch(e){throw kino.error("not_found","No se pudo abrir la página de la fuente. Puede bloquear solicitudes desde Kino o requerir navegador: "+s.title);}
  if(!response.ok)throw kino.error("not_found","La fuente respondió HTTP "+response.status+".");
  let html="";try{html=await response.text();}catch(_){}
- const media=directMedia(html,s.url);
- if(!media)throw kino.error("not_found","Esta página no expone un enlace directo MP4/M4V/WebM/HLS compatible. KBLLB no elude DRM, inicio de sesión ni reproductores protegidos. Abre la fuente en el navegador o usa una URL de vídeo directa autorizada.");
- return {url:media,mime:/\.m3u8(?:$|[?#])/i.test(media)?"application/vnd.apple.mpegurl":/\.webm/i.test(media)?"video/webm":"video/mp4"};
+ let media=directMedia(html,s.url);
+ if(media)return {url:media,mime:/\\.m3u8(?:$|[?#])/i.test(media)?"application/vnd.apple.mpegurl":/\\.webm/i.test(media)?"video/webm":"video/mp4"};
+ // Optional Kino hidden-browser fallback. It can capture a page that itself starts playback,
+ // but cannot turn a provider homepage into a title/episode catalogue.
+ if(kino.browser&&typeof kino.browser.capture==="function"){
+  try{
+   const captured=await kino.browser.capture(s.url,{timeoutMs:18000});
+   const streams=Array.isArray(captured.media)?captured.media:[];
+   if(streams.length){const first=streams[0];return {url:first.url,mime:first.mime,headers:first.headers,alternatives:streams.slice(1,8).map(x=>({url:x.url,mime:x.mime,headers:x.headers}))};}
+  }catch(e){log("Browser capture failed",s.title,e&&e.code||e&&e.message||"unknown");}
+ }
+ throw kino.error("not_found","No se encontró un vídeo directo en esta página. La tarjeta es una fuente externa, no una película individual. Para listar títulos y capítulos reales hace falta un adaptador específico para ese sitio.");
 }
