@@ -3,8 +3,7 @@
 // publicly exposed media URLs. It does not bypass DRM, logins, paywalls, or protected player APIs.
 const ARCHIVE = "https://archive.org";
 const SOURCES = [
- // Catálogo central de enlaces externos. Las tarjetas son enlaces de descubrimiento, no streams garantizados.
- {id:"archive-org",title:"Internet Archive",category:"Documentales y archivo",url:"https://archive.org/"},
+ // Catálogo de enlaces externos. Las tarjetas son enlaces de descubrimiento, no streams garantizados.
  {id:"fly-stream",title:"Fly Stream",category:"Películas y series",url:"https://share.google/gmMvOn5uR4aExEUBK"},
  {id:"bingebang-zoechip",title:"BingeBang / ZoeChip",category:"Películas y series",url:"https://zoechip.bz/home"},
  {id:"cinebros",title:"CineBros",category:"Películas y series",url:"https://cinebros.net/"},
@@ -29,21 +28,11 @@ const SOURCES = [
  {id:"footballia",title:"Footballia · fútbol histórico",category:"Deportes y TV en directo",url:"https://footballia.net/"},
  {id:"mlblive",title:"MLB Live",category:"Deportes y TV en directo",url:"https://mlblive.net/"},
  {id:"timesoccertv",title:"TimeSoccerTV · programación",category:"Deportes y TV en directo",url:"https://timesoccertv.com/"},
- {id:"documentarymania",title:"DocumentaryMania",category:"Documentales y archivo",url:"https://www.documentarymania.com/"},
- {id:"documentarytube",title:"DocumentaryTube",category:"Documentales y archivo",url:"https://www.documentarytube.com/"},
- {id:"fmhy-video-tools",title:"FMHY · herramientas de vídeo",category:"Herramientas y descargas",url:"https://fmhy.net/video-tools/#video-download"},
- {id:"fmhy-downloading",title:"FMHY · descargas",category:"Herramientas y descargas",url:"https://fmhy.net/downloading"},
- {id:"gnu-wget",title:"GNU Wget",category:"Herramientas y descargas",url:"https://www.gnu.org/software/wget/"},
- {id:"orionoid",title:"Orionoid",category:"Herramientas y descargas",url:"https://orionoid.com/"},
- {id:"sanet",title:"SANET",category:"Herramientas y descargas",url:"https://sanet.st/full/"},
- {id:"hatt-github",title:"Hatt · GitHub",category:"Herramientas y descargas",url:"https://github.com/FrenchGithubUser/Hatt"}
 ];
 const CATEGORIES=[
  {id:"movies",title:"Películas y series",match:"Películas y series"},
  {id:"anime",title:"Anime y animación",match:"Anime y animación"},
- {id:"sports-tv",title:"Deportes y TV en directo",match:"Deportes y TV en directo"},
- {id:"docs",title:"Documentales y archivo",match:"Documentales y archivo"},
- {id:"tools",title:"Herramientas y descargas",match:"Herramientas y descargas"}
+ {id:"sports-tv",title:"Deportes y TV en directo",match:"Deportes y TV en directo"}
 ];
 function item(s){return {id:"source-"+s.id,ref:"source:"+s.id,title:s.title,kind:"movie",overview:s.category+" · Fuente externa: "+s.url};}
 function log(...a){try{kino.log(...a);}catch(_){}}
@@ -106,20 +95,18 @@ function mediaLabel(url){
 export async function categories(){return CATEGORIES.map(c=>({id:"kbllb-"+c.id,title:c.title,ref:c.id}));}
 export async function home(){
  const rows=CATEGORIES.map(c=>({id:c.id,ref:c.id,title:c.title,items:SOURCES.filter(s=>s.category===c.match).map(item)}));
- try{rows.push({id:"archive-docs",ref:"archive-docs",title:"Vídeos reproducibles de Internet Archive",items:(await archiveSearch("documentary")).map(archiveItem)});}catch(e){log("Archive home",e.message);}
  return rows;
 }
 export async function browse(ref,cursor){
  const c=CATEGORIES.find(x=>x.id===ref);
  if(c)return {items:SOURCES.filter(s=>s.category===c.match).map(item)};
- if(ref==="archive-docs"){const page=Math.max(1,Number(cursor)||1);const u=ARCHIVE+"/advancedsearch.php?q="+encodeURIComponent("mediatype:(movies) AND (subject:documentary OR title:documentary)")+"&fl[]=identifier&fl[]=title&fl[]=year&fl[]=description&rows=30&page="+page+"&output=json";const d=await getJson(u);const docs=d&&d.response&&Array.isArray(d.response.docs)?d.response.docs:[];return {items:docs.map(archiveItem),next:docs.length===30?String(page+1):undefined};}
  throw kino.error("not_found","Categoría desconocida.");
 }
 export async function search(query){
  const q=String((query&&(query.q||query.query||query.title))||"").trim();
  if(!q)return SOURCES.map(item);
  const matches=SOURCES.filter(s=>(s.title+" "+s.category+" "+s.url).toLowerCase().includes(q.toLowerCase())).map(item);
- try{const type=query&&query.type==="series"?"series":"movie";const docs=await archiveSearch(q,type);return matches.concat(docs.map(d=>archiveItem(d,type)));}catch(e){log("Search archive",e.message);return matches;}
+ return matches;
 }
 async function archiveMetadata(id){
  const meta=await getJson(ARCHIVE+"/metadata/"+encodeURIComponent(id));
