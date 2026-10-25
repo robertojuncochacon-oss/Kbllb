@@ -1,0 +1,2 @@
+import cron from "node-cron";export interface SchedulerOptions{expression:string;timezone:string;enabled:boolean;run:()=>Promise<void>;}
+export function startScheduler(o:SchedulerOptions):cron.ScheduledTask|undefined{if(!o.enabled)return undefined;if(!cron.validate(o.expression))throw new Error("Invalid cron expression");return cron.schedule(o.expression,()=>{void o.run().catch(e=>process.stderr.write(JSON.stringify({level:"error",event:"scheduled_run_failed",message:String(e),at:new Date().toISOString()})+"\n"));},{timezone:o.timezone});}
