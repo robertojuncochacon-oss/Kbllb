@@ -1,15 +1,46 @@
 {
   "id": "kbllb-media-index",
   "name": "KBLLB Media Index",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "apiVersion": 6,
   "entry": "plugin.js",
-  "description": "Catálogo externo por categorías: películas y series, anime, deportes, documentales y herramientas; incluye búsqueda y reproducción compatible de Internet Archive.",
+  "description": "Catálogo de fuentes externas y reproducción de medios directos públicamente expuestos; no elude DRM ni protecciones.",
   "author": "robertojuncochacon-oss",
   "homepage": "https://github.com/robertojuncochacon-oss/kBllB",
   "hosts": [
     "archive.org",
-    "*.archive.org"
+    "*.archive.org",
+    "share.google",
+    "zoechip.bz",
+    "cinebros.net",
+    "zenox.lol",
+    "redflix.one",
+    "nexa.mov",
+    "flixer.gd",
+    "boredflix.to",
+    "anichi.to",
+    "animesalt.to",
+    "anihq.org",
+    "mirrors.st",
+    "wcostream.org",
+    "kisscartoon.nz",
+    "kimcartoon.li",
+    "gostreameast.link",
+    "strmd.link",
+    "thetvapp.st",
+    "aurasports.xyz",
+    "damitv.st",
+    "footballia.net",
+    "mlblive.net",
+    "timesoccertv.com",
+    "documentarymania.com",
+    "documentarytube.com",
+    "fmhy.net",
+    "leonflix.net",
+    "gnu.org",
+    "orionoid.com",
+    "sanet.st",
+    "github.com"
   ],
   "capabilities": [
     "search",
@@ -24,5 +55,6 @@
     "anime",
     "live",
     "utilities"
-  ]
+  ],
+  "streamHosts": "any"
 }
