@@ -137,7 +137,7 @@ export async function resolve(ref){
  if(!response.ok)throw kino.error("not_found","La fuente respondió HTTP "+response.status+".");
  let html="";try{html=await response.text();}catch(_){}
  const media=directMediaCandidates(html,s.url);
- if(media.length){const first=media[0];return {url:first,mime:/\.m3u8(?:$|[?#])/i.test(first)?"application/vnd.apple.mpegurl":/\.webm/i.test(first)?"video/webm":"video/mp4",label:mediaLabel(first),alternatives:media.slice(1,8).map(url=>({url,mime:/\.m3u8(?:$|[?#])/i.test(url)?"application/vnd.apple.mpegurl":/\.webm/i.test(url)?"video/webm":"video/mp4",label:mediaLabel(url)}))};
+ if(media.length){const first=media[0];return {url:first,mime:/\.m3u8(?:$|[?#])/i.test(first)?"application/vnd.apple.mpegurl":/\.webm/i.test(first)?"video/webm":"video/mp4",label:mediaLabel(first),alternatives:media.slice(1,8).map(url=>({url,mime:/\.m3u8(?:$|[?#])/i.test(url)?"application/vnd.apple.mpegurl":/\.webm/i.test(url)?"video/webm":"video/mp4",label:mediaLabel(url)}))};}
  // Optional Kino hidden-browser fallback. It can capture a page that itself starts playback,
  // but cannot turn a provider homepage into a title/episode catalogue.
  if(kino.browser&&typeof kino.browser.capture==="function"){
