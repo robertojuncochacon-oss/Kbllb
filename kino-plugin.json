@@ -1,10 +1,10 @@
 {
   "id": "kbllb-media-index",
   "name": "KBLLB Media Index",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "apiVersion": 6,
   "entry": "plugin.js",
-  "description": "Catálogo KBLLB, búsqueda y episodios de Internet Archive, extracción de medios directos con prioridad HLS adaptativa y alternativas de calidad cuando la fuente las expone.",
+  "description": "Motor de selección de enlaces: prioriza streams adaptativos y ordena alternativas de calidad cuando la fuente los expone.",
   "author": "robertojuncochacon-oss",
   "homepage": "https://github.com/robertojuncochacon-oss/kBllB",
   "hosts": [
