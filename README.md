@@ -1,28 +1,26 @@
-# KBLLB — Link Selector Engine para Kino TV
+# KBLLB — motor de enlaces nativos para Kino TV
 
-Versión 1.0.7. Organiza fuentes, busca vídeos compatibles de Internet Archive y ordena URLs de vídeo que una fuente exponga directamente o que el navegador oculto de Kino capture durante una reproducción real.
+Versión 1.0.8. Devuelve el objeto Stream del contrato de Kino: `url`, `mime` opcional, `subtitles`, `audioTracks`, `label` y `alternatives`.
 
-## Selección de enlaces
+## Resolución
 
-- En modo automático, prioriza HLS/M3U8 porque puede permitir adaptación de calidad durante la reproducción.
-- Si la URL indica una resolución, utiliza esa pista para ordenar alternativas. Si no se puede deducir, no inventa una resolución.
-- Ordena los streams capturados por el navegador de Kino y devuelve alternativas cuando existen.
-- Corrige patrones de extensiones y episodios para elementos de Internet Archive.
+- Detecta URLs HTTPS directas expuestas en elementos `video`, `source` y metadatos habituales.
+- Reconoce HLS (`.m3u8`), DASH (`.mpd`) y archivos `.mp4`, `.m4v`, `.webm`, `.mkv`.
+- Prefiere manifiestos adaptativos HLS/DASH cuando son detectables y ordena alternativas con señales de calidad presentes en la URL.
+- Extrae subtítulos SRT/VTT de etiquetas `<track>` cuando la página expone URLs directas.
+- Intenta usar el navegador oculto de Kino como segundo método, si está disponible y autorizado.
+- Resuelve archivos públicos compatibles de Internet Archive.
 
 ## Límites
 
-El contrato actual de `resolve(ref)` no aporta por sí solo idioma preferido, pistas de subtítulos, velocidad de Internet en tiempo real ni estado del dispositivo. Por ello, esta versión no puede garantizar audio latino/castellano, detectar subtítulos en todos los reproductores ni medir el bitrate real. Esos datos requieren que cada fuente los exponga y un adaptador específico. La reputación de un servidor tampoco garantiza rapidez.
+Audio y subtítulos se incluyen solo si la fuente expone pistas utilizables. Las pistas de audio integradas en HLS o en archivos de vídeo las administra el reproductor nativo; el plugin no inventa URLs separadas. No mide la velocidad real de Internet ni garantiza idioma, calidad o estabilidad que la fuente no declare. No intenta superar DRM, inicios de sesión, CAPTCHA, paywalls o controles de acceso. Si no encuentra un stream directo, devuelve un error en lugar de una página HTML.
 
-La preferencia HLS es una heurística, no una prueba de mayor velocidad. Las alternativas aparecen cuando se pueden obtener. El plugin no intenta acceder a contenido protegido ni eludir controles de acceso.
+Las tarjetas de sitios externos son accesos a páginas, no títulos individuales. La búsqueda y episodios automáticos están implementados para Internet Archive; cada proveedor externo requiere un adaptador propio.
 
-## Fuentes
+## Instalación
 
-Se conservan los enlaces externos configurados anteriormente. Las tarjetas de fuentes son accesos a páginas, no títulos individuales. Para buscar títulos, listar temporadas/capítulos y reproducir dentro del reproductor nativo de Kino, cada sitio requiere un adaptador propio. La búsqueda y los episodios implementados actualmente se limitan a elementos compatibles de Internet Archive.
+1. En Kino TV, abre Ajustes → Plugins.
+2. Instala o actualiza desde `robertojuncochacon-oss/KbllB`.
+3. Autoriza hosts y navegador oculto solo cuando estés de acuerdo.
 
-## Actualizar
-
-1. En Kino TV, abre Ajustes → Plugins y actualiza KBLLB a 1.0.7.
-2. Si no aparece, elimina y vuelve a instalar `robertojuncochacon-oss/kBllB`.
-3. Revisa los permisos de navegador oculto y hosts externos que solicite Kino.
-
-Repositorio: https://github.com/robertojuncochacon-oss/kBllB
+Repositorio: https://github.com/robertojuncochacon-oss/KbllB
