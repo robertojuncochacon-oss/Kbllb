@@ -1,0 +1,32 @@
+indexPath: ./data/catalog.json
+reportPath: ./data/reports
+logLevel: info
+scheduler:
+  enabled: true
+  cron: "0 3 * * *"
+  timezone: "America/Havana"
+  staleDays: 7
+network:
+  userAgent: "KBLLB-MediaIndexer/0.1 (+contact: admin@example.invalid)"
+  timeoutMs: 15000
+  maxRetries: 3
+  baseDelayMs: 500
+  jitterMs: 300
+  requestsPerMinutePerHost: 12
+  obeyRobotsTxt: true
+matching:
+  similarityThreshold: 0.92
+scoring:
+  quality: 0.22
+  directPlayback: 0.18
+  language: 0.12
+  availability: 0.20
+  latency: 0.08
+  reliability: 0.15
+  subtitles: 0.05
+  preferredLanguages: [es, es-419, en]
+  requireSubtitles: false
+search:
+  semanticEnabled: false
+  limit: 50
+  fuzzyThreshold: 0.78
