@@ -83,19 +83,40 @@ export async function search(query){
  const matches=SOURCES.filter(s=>(s.title+" "+s.category+" "+s.url).toLowerCase().includes(q.toLowerCase())).map(item);
  try{const type=query&&query.type==="series"?"series":"movie";const docs=await archiveSearch(q,type);return matches.concat(docs.map(d=>archiveItem(d,type)));}catch(e){log("Search archive",e.message);return matches;}
 }
-async function archiveResolve(id){
+async function archiveMetadata(id){
  const meta=await getJson(ARCHIVE+"/metadata/"+encodeURIComponent(id));
  if(!meta||!Array.isArray(meta.files))throw kino.error("not_found","No se encontraron archivos.");
- const f=meta.files.filter(x=>x&&typeof x.name==="string"&&/\.(mp4|m4v|webm)$/i.test(x.name)&&x.source==="original").sort((a,b)=>(/\.mp4$/i.test(a.name)?0:1)-(/\.mp4$/i.test(b.name)?0:1))[0];
- if(!f)throw kino.error("not_found","Internet Archive no ofrece un archivo MP4/M4V/WebM original compatible para este título.");
- return {url:ARCHIVE+"/download/"+encodeURIComponent(id)+"/"+f.name.split("/").map(encodeURIComponent).join("/"),mime:/\.webm$/i.test(f.name)?"video/webm":"video/mp4"};
+ return meta;
+}
+function playableForOriginal(files,original){
+ return files.find(f=>f.name===original.name&&/\\.(mp4|m4v|webm)$/i.test(f.name)) ||
+        files.find(f=>f.original===original.name&&/\\.(mp4|m4v|webm)$/i.test(f.name)) || null;
+}
+export async function episodes(ref){
+ if(!String(ref||"").startsWith("archive:"))throw kino.error("not_found","Esta fuente externa no ofrece capítulos que KBLLB pueda listar automáticamente.");
+ const id=String(ref).slice(8).split("|")[0];
+ const meta=await archiveMetadata(id);
+ const originals=meta.files.filter(f=>f&&f.source==="original"&&typeof f.name==="string"&&/\\.(mp4|m4v|webm|avi|mkv|mpg|mpeg|mov)$/i.test(f.name));
+ const playable=originals.filter(f=>playableForOriginal(meta.files,f));
+ if(!playable.length)throw kino.error("not_found","No hay capítulos en formatos compatibles en esta serie.");
+ return {series:{title:String((meta.metadata&&meta.metadata.title)||id),poster:ARCHIVE+"/services/img/"+encodeURIComponent(id)},episodes:playable.slice(0,5000).map((f,i)=>{
+  const name=f.name.split("/").pop();const m=/S(\\d{1,3})E(\\d{1,4})/i.exec(name);
+  return {season:m?Number(m[1]):1,number:m?Number(m[2]):i+1,ref:"archive:"+id+"|"+f.name,title:String(f.title||name.replace(/\\.[^.]+$/,""))};
+ })};
+}
+async function archiveResolve(id,wanted){
+ const meta=await archiveMetadata(id);
+ const originals=meta.files.filter(f=>f&&f.source==="original"&&typeof f.name==="string"&&/\\.(mp4|m4v|webm|avi|mkv|mpg|mpeg|mov)$/i.test(f.name));
+ const original=wanted?originals.find(f=>f.name===wanted):originals.find(f=>playableForOriginal(meta.files,f));
+ if(!original)throw kino.error("not_found","No se encontró el vídeo solicitado.");
+ const f=playableForOriginal(meta.files,original);
+ if(!f)throw kino.error("not_found","Internet Archive no ofrece un archivo compatible para este vídeo.");
+ const seconds=Number(f.length||original.length||0);
+ return {url:ARCHIVE+"/download/"+encodeURIComponent(id)+"/"+f.name.split("/").map(encodeURIComponent).join("/"),mime:/\\.webm$/i.test(f.name)?"video/webm":"video/mp4",durationMs:seconds?Math.round(seconds*1000):undefined};
 }
 export async function resolve(ref){
  const value=String(ref||"");
- if(value.startsWith("archive:")){
-  const raw=value.slice(8);const cut=raw.indexOf("|");
-  return archiveResolve(cut<0?raw:raw.slice(0,cut),cut<0?null:raw.slice(cut+1));
- }
+ if(value.startsWith("archive:")){const raw=value.slice(8);const cut=raw.indexOf("|");return archiveResolve(cut<0?raw:raw.slice(0,cut),cut<0?null:raw.slice(cut+1));}
  if(!value.startsWith("source:"))throw kino.error("not_found","Referencia desconocida.");
  const s=sourceById(value.slice(7));if(!s)throw kino.error("not_found","Fuente desconocida.");
  let response;
